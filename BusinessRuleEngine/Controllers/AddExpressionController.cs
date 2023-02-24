@@ -48,7 +48,20 @@ namespace BusinessRuleEngine.Controllers
         public void createExpression(CreateExpressionDTO expressionDTO)
         {
             // TODO: Verify that the expression doesn't already exist
-
+            List<Expression> existingExpressions = sqlRepo.getAllExpressions();
+            bool expressionExists = sqlRepo.ExpressionExistsByValue(
+                                    existingExpressions,
+                                expressionDTO.LeftOperandType,
+                                expressionDTO.LeftOperandValue,
+                                expressionDTO.RightOperandType,
+                                expressionDTO.RightOperandValue,
+                                    expressionDTO.Operator);
+            
+            if (expressionExists)
+                {
+                    // Return an error response indicating that the expression already exists
+                    Debug.WriteLine("An expression with the same properties already exists.");
+            }else{
             // get all the elements needed to create an Expression
             Expression newExpression = new Expression
             {
@@ -65,6 +78,7 @@ namespace BusinessRuleEngine.Controllers
 
             Debug.WriteLine("The values in body: " + newExpression);
             //return CreatedAtAction()
+            }
         }
 
         [HttpPut]
@@ -109,5 +123,17 @@ namespace BusinessRuleEngine.Controllers
             Debug.WriteLine("The values in body: " + expressionToDeleteID);
             //return CreatedAtAction()
         }
+
+        // [HttpGet]
+        // [Route("/GetLeftOperandType")]
+        //  public ActionResult<IEnumerable<Expression>> GetExpressionsByLeftOperandType(string LeftOperandType) //GetExpression DTO is redundant
+        // {
+        //     var expressions = sqlRepo.GetExpressionsByLeftOperandType(LeftOperandType); 
+        //     if( expressions == null)
+        //     {
+        //         return NotFound();
+        //     }
+        //     return Ok(expressions);
+        // }
     }
 }

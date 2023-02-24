@@ -313,5 +313,19 @@ namespace BusinessRuleEngine.Repositories
         {
             return idsOfExpressions[expressionID];
         }
+
+        public bool ExpressionExistsByValue(List<Expression> expressions, 
+        string leftOperandType, 
+        string leftOperandValue, 
+        string rightOperandType, 
+        string rightOperandValue, 
+        string @operator)
+        {
+            return expressions.Exists(e => e.LeftOperandType == leftOperandType
+                                   && e.LeftOperandValue == leftOperandValue
+                                   && e.RightOperandType == rightOperandType
+                                   && e.RightOperandValue == rightOperandValue
+                                   && e.Operator == @operator);
+        }
     }
 }
