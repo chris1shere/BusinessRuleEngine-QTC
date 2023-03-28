@@ -57,22 +57,33 @@ namespace BusinessRuleEngine.Controllers
         [Route("AddRule")]
         public void CreateRule(CreateRuleDTO ruleDTO)
         {
-            // get the name of the rule that is going to be added
-            string nameOfNewRule = ruleDTO.RuleName;
-
-            // check if the rule already exists in the database
-            if (sqlRepo.ruleExists(nameOfNewRule))
+            if (sqlRepo.ruleExists(ruleDTO.RuleName))
             {
-                Debug.WriteLine("The rule named " + nameOfNewRule + " already exists");
+                Debug.WriteLine("The rule named " + ruleDTO.RuleName + " already exists");
+                return;
             }
 
-            // TODO: if the rule does not exist, make sure that the expressionID is valid
-            
+            if (!sqlRepo.IsValidExpressionId(ruleDTO.ExpressionID))
+            {
+                Debug.WriteLine("Invalid expression ID: " + ruleDTO.ExpressionID);
+                return;
+            }
+
+            if (sqlRepo.RuleExistsByValue(
+                sqlRepo.getAllRules(),
+                ruleDTO.PositiveAction,
+                ruleDTO.PositiveValue,
+                ruleDTO.NegativeAction,
+                ruleDTO.NegativeValue))
+            {
+                Debug.WriteLine("A Rule with the same properties already exists.");
+                return;
+            }
 
             // get all the elements needed to create a rule
             Rule newRule = new Rule
             {
-                RuleID =  Guid.NewGuid().ToString(),
+                RuleID = Guid.NewGuid().ToString(),
                 RuleName = ruleDTO.RuleName,
                 ExpressionID = ruleDTO.ExpressionID,
                 PositiveAction = ruleDTO.PositiveAction,
@@ -83,9 +94,10 @@ namespace BusinessRuleEngine.Controllers
 
             sqlRepo.addRule(newRule);
 
-            Debug.WriteLine("The values in body: "+newRule);
+            Debug.WriteLine("The values in body: " + newRule);
             //return CreatedAtAction()
         }
+
 
         [HttpPut]
         [Route("EditRule")]
@@ -93,18 +105,27 @@ namespace BusinessRuleEngine.Controllers
         {
             // get the name of the rule that is going to be added
             string ruleIDofRuleToEdit = ruleDTO.RuleID;
+            string nameOfNewRuleEdit = ruleDTO.RuleName;
 
             //TODO: Needs to check if rule doesn't exist and handle accordingly
-            if (sqlRepo.ruleExists(ruleIDofRuleToEdit))
+            if (sqlRepo.ruleExists(nameOfNewRuleEdit))
             {
-                Debug.WriteLine("The rule named " + ruleIDofRuleToEdit + " already exists");
+                Debug.WriteLine("The rule named " + nameOfNewRuleEdit + " already exists");
             }
-
             // TODO: if the rule does not exist, make sure that the expressionID is valid
-            sqlRepo.editRule(ruleDTO);
+            else{
+                
+                if(!sqlRepo.IsValidExpressionId(ruleDTO.ExpressionID)){
+                    Debug.WriteLine("Invalid expression ID: " + ruleDTO.ExpressionID);
+                }else
+                {
+                    
+                    sqlRepo.editRule(ruleDTO);
 
-            Debug.WriteLine("The values in body: " + ruleIDofRuleToEdit);
-            //return CreatedAtAction()
+                    Debug.WriteLine("The values in body: " + ruleIDofRuleToEdit);
+                    //return CreatedAtAction()
+             }
+            }
         }
 
         // TODO: Add functionallity to remove rule from database
@@ -117,16 +138,22 @@ namespace BusinessRuleEngine.Controllers
             string nameOfNewRule = ruleDTO.RuleID;
 
             //TODO: Needs to check if rule doesn't exist and handle accordingly
-            if (sqlRepo.ruleExists(nameOfNewRule))
+            if (!sqlRepo.ruleIDExists(nameOfNewRule))
             {
-                Debug.WriteLine("The rule named " + nameOfNewRule + " already exists");
+                Debug.WriteLine("The Rule ID: " + nameOfNewRule + " does not exist.");
+            }else{
+                if(!sqlRepo.IsValidExpressionId(ruleDTO.ExpressionID)){
+                    Debug.WriteLine("Invalid expression ID: " + ruleDTO.ExpressionID);
+                }else{
+                    // TODO: if the rule does not exist, make sure that the expressionID is valid
+                    sqlRepo.deleteRule(nameOfNewRule);
+
+                    Debug.WriteLine("The values in body: " + nameOfNewRule);
+                    //return CreatedAtAction()
+                }
             }
 
-            // TODO: if the rule does not exist, make sure that the expressionID is valid
-            sqlRepo.deleteRule(nameOfNewRule);
-
-            Debug.WriteLine("The values in body: " + nameOfNewRule);
-            //return CreatedAtAction()
+            
         }
 
     }

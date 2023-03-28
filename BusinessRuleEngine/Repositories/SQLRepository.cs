@@ -285,6 +285,11 @@ namespace BusinessRuleEngine.Repositories
             return namesOfRules.Contains(ruleName); // returns true if the rule exists, if not then false
         }
 
+        public bool ruleIDExists(string ruleID)
+        {
+            return namesOfRules.Contains(ruleID); // returns true if the rule exists, if not then false
+        }
+
         // given a rule namee, return the Rule with all information
         public Rule getRule(string ruleName)
         {
@@ -309,6 +314,19 @@ namespace BusinessRuleEngine.Repositories
             return namesOfExpressions.Contains(expressionID);
         }
 
+        public bool IsValidExpressionId(string expressionId)
+        {
+            // check if the expressionId exists in the database and is associated with an active expression
+            var expression = expressionExists(expressionId);
+            if (!expression)
+            {
+                return false;
+            }
+            return true;
+        }
+
+
+
         public Expression getExpression(string expressionID)
         {
             return idsOfExpressions[expressionID];
@@ -326,6 +344,19 @@ namespace BusinessRuleEngine.Repositories
                                    && e.RightOperandType == rightOperandType
                                    && e.RightOperandValue == rightOperandValue
                                    && e.Operator == @operator);
+        }
+
+
+        public bool RuleExistsByValue(List<Rule> rules, 
+        string positiveAction, 
+        string positiveValue, 
+        string negativeAction,
+        string negativeValue)
+        {
+            return rules.Exists(e => e.PositiveAction == positiveAction
+                                   && e.PositiveValue == positiveValue
+                                   && e.NegativeAction == negativeAction
+                                   && e.NegativeValue == negativeValue);
         }
     }
 }
