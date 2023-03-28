@@ -103,30 +103,29 @@ namespace BusinessRuleEngine.Controllers
         [Route("EditRule")]
         public void EditRule(EditRuleDTO ruleDTO)
         {
-            // get the name of the rule that is going to be added
+            // Get the ID of the rule that is going to be edited
             string ruleIDofRuleToEdit = ruleDTO.RuleID;
-            string nameOfNewRuleEdit = ruleDTO.RuleName;
-
-            //TODO: Needs to check if rule doesn't exist and handle accordingly
-            if (sqlRepo.ruleExists(nameOfNewRuleEdit))
+            
+            // Check if the rule exists in the database
+            if (!sqlRepo.ruleIDExists(ruleIDofRuleToEdit))
             {
-                Debug.WriteLine("The rule named " + nameOfNewRuleEdit + " already exists");
+                Debug.WriteLine("The rule with ID " + ruleIDofRuleToEdit + " does not exist");
+                return;
             }
-            // TODO: if the rule does not exist, make sure that the expressionID is valid
-            else{
-                
-                if(!sqlRepo.IsValidExpressionId(ruleDTO.ExpressionID)){
-                    Debug.WriteLine("Invalid expression ID: " + ruleDTO.ExpressionID);
-                }else
-                {
-                    
-                    sqlRepo.editRule(ruleDTO);
-
-                    Debug.WriteLine("The values in body: " + ruleIDofRuleToEdit);
-                    //return CreatedAtAction()
-             }
+            
+            
+            // Check if the expression ID is valid
+            if (!sqlRepo.IsValidExpressionId(ruleDTO.ExpressionID))
+            {
+                Debug.WriteLine("Invalid expression ID: " + ruleDTO.ExpressionID);
+                return;
             }
+            
+            // Edit the rule
+            sqlRepo.editRule(ruleDTO);
+            Debug.WriteLine("The values in body: " + ruleIDofRuleToEdit);
         }
+
 
         // TODO: Add functionallity to remove rule from database
         [HttpDelete]
