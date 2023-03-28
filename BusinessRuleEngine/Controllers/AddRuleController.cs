@@ -131,30 +131,28 @@ namespace BusinessRuleEngine.Controllers
         // TODO: Add functionallity to remove rule from database
         [HttpDelete]
         [Route("DeleteRule")]
-        //TODO: Make it input json file either be only rule name or rule id
-        public void DeleteRule(DeleteRuleDTO ruleDTO)
+        public void DeleteRule(string ruleID, string expressionID)
         {
-            // get the name of the rule that is going to be added
-            string nameOfNewRule = ruleDTO.RuleID;
-
-            //TODO: Needs to check if rule doesn't exist and handle accordingly
-            if (!sqlRepo.ruleIDExists(nameOfNewRule))
+            // check that the rule exists
+            if (!sqlRepo.ruleIDExists(ruleID))
             {
-                Debug.WriteLine("The Rule ID: " + nameOfNewRule + " does not exist.");
-            }else{
-                if(!sqlRepo.IsValidExpressionId(ruleDTO.ExpressionID)){
-                    Debug.WriteLine("Invalid expression ID: " + ruleDTO.ExpressionID);
-                }else{
-                    // TODO: if the rule does not exist, make sure that the expressionID is valid
-                    sqlRepo.deleteRule(nameOfNewRule);
-
-                    Debug.WriteLine("The values in body: " + nameOfNewRule);
-                    //return CreatedAtAction()
-                }
+                Debug.WriteLine("The rule with ID " + ruleID + " does not exist");
+                return;
             }
 
-            
+            // check that the expression ID is valid
+            if (!sqlRepo.expressionExists(expressionID))
+            {
+                Debug.WriteLine("Invalid expression ID: " + expressionID);
+                return;
+            }
+
+            // delete the rule
+            sqlRepo.deleteRule(ruleID);
+
+            Debug.WriteLine("Rule with ID " + ruleID + " was deleted");
         }
+
 
     }
 }
